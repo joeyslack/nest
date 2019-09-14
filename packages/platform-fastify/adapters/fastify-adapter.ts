@@ -3,7 +3,7 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { NestApplicationOptions } from '@nestjs/common/interfaces/nest-application-options.interface';
 import { loadPackage } from '@nestjs/common/utils/load-package.util';
 import { AbstractHttpAdapter } from '@nestjs/core/adapters/http-adapter';
-import * as fastify from 'fastify';
+import fastify = require('fastify');
 import * as cors from 'fastify-cors';
 import * as formBody from 'fastify-formbody';
 import * as Reply from 'fastify/lib/reply';
@@ -144,7 +144,7 @@ export class FastifyAdapter extends AbstractHttpAdapter {
     requestMethod: RequestMethod,
   ): (path: string, callback: Function) => any {
     return (path: string, callback: Function) => {
-      const re = pathToRegexp(path);
+      const re = pathToRegexp.compile(path);
       const normalizedPath = path === '/*' ? '' : path;
 
       this.instance.use(normalizedPath, (req, res, next) => {
@@ -154,7 +154,7 @@ export class FastifyAdapter extends AbstractHttpAdapter {
             ? req.originalUrl.slice(0, queryParamsIndex)
             : req.originalUrl;
 
-        if (!re.exec(pathname + '/') && normalizedPath) {
+        if (!re.apply(pathname + '/') && normalizedPath) {
           return next();
         }
         if (
